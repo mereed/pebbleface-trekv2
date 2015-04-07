@@ -69,16 +69,16 @@ var imageId = {
 var options = JSON.parse(localStorage.getItem('options'));
 //console.log('read options: ' + JSON.stringify(options));
 if (options === null) options = { "use_gps" : "true",
-                                  "location" : "",
-                                  "units" : "fahrenheit",
-                                  "status" : "false",
-                                  "format" : "",
-                                  "language" : "",
-									"weatherstatus" : "false",
+                                    "location" : "",
+                                    "units" : "fahrenheit",
+                                    "status" : "true",
+                                    "format" : "",
+                                    "language" : "",
+									"weatherstatus" : "true",
 									"bluetoothvibe" : "false",
 									"hourlyvibe" : "false",
 									"ampmsecs" : "false",
-                                  "invert" : "false" };
+                                    "invert" : "false" };
 
 function getWeatherFromLatLong(latitude, longitude) {
   var response;
@@ -151,8 +151,8 @@ function getWeatherFromWoeid(woeid) {
           Pebble.sendAppMessage({
             "icon" : icon,
             "temperature" : temperature,
-            "invert" : (options["invert"] == "true" ? 1 : 0),  		
-			"status" : (options["status"] == "true" ? 0 : 1 ),
+			"invert" : (options["invert"] == "true" ? 1 : 0),
+			"status" : (options["status"] == "true" ? 1 : 0 ),
 			"weatherstatus" : (options["weatherstatus"] == "true" ? 1 : 0 ),
 			"bluetoothvibe" : (options["bluetoothvibe"] == "true" ? 1 : 0 ),
 			"hourlyvibe" : (options["hourlyvibe"] == "true" ? 1 : 0 ),
@@ -190,12 +190,12 @@ function locationError(err) {
   console.warn('location error (' + err.code + '): ' + err.message);
   Pebble.sendAppMessage({
     "icon":11,
-    "temperature":"999"
+    "temperature":"   "
   });
 }
 
 Pebble.addEventListener('showConfiguration', function(e) {
-	 var uri = 'http://www.themapman.com/pebblewatch/trekv2-config-w2secs.html?' +
+	var uri = 'http://www.themapman.com/pebblewatch/trekv2-config-w3secs.html?' +
     'use_gps=' + encodeURIComponent(options['use_gps']) +
     '&location=' + encodeURIComponent(options['location']) +
     '&units=' + encodeURIComponent(options['units']) +

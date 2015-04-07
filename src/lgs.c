@@ -28,7 +28,7 @@ static enum bluetoothvibeKey { BLUETOOTHVIBE_OFF = 0, BLUETOOTHVIBE_ON } bluetoo
 static enum hourlyvibeKey { HOURLYVIBE_OFF = 0, HOURLYVIBE_ON } hourlyvibe_status;
 static enum formatKeys { FORMAT_WEEK = 0, FORMAT_DOTY, FORMAT_DDMMYY, FORMAT_MMDDYY, FORMAT_WXDX, FORMAT_INT } current_format;
 static enum languageKeys { LANG_EN = 0, LANG_NL, LANG_DE, LANG_FR, LANG_HR, LANG_ES, LANG_IT, LANG_NO, LANG_FI } current_language;
-static enum invertKeys { INVERT_OFF = 1, INVERT_ON } invert_format;
+static enum invertKeys { INVERT_OFF = 0, INVERT_ON } invert_format;
 
 // Setting keys
 enum settingKeys {
@@ -53,7 +53,6 @@ static bool appStarted = false;
 
 InverterLayer *trekinverter_layer = NULL;
 
-
 // All UI elements
 static Window         *window;
 static GBitmap        *background_image;
@@ -75,7 +74,6 @@ static InverterLayer  *currentDayLayer;
 static AppSync        app;
 static uint8_t        sync_buffer[256];
 
-
 // Define layer rectangles (x, y, width, height)
 GRect TIME_RECT      = ConstantGRect(  29,   4, 110,  72 );
 GRect AMPM_RECT      = ConstantGRect( 122,   0,  22,  22 );
@@ -92,16 +90,13 @@ GRect OFF_WEEK_RECT  = ConstantGRect(  74, 132, 144,  70 );
 GRect TEMP_RECT      = ConstantGRect(   18,  53, 40,  40);
 GRect ICON_RECT      = ConstantGRect(   16,  21, 20,  20);
 
-
 // Define placeholders for time and date
 static char time_text[] = "00:00";
 static char ampm_text[] = "XXX";
 static char secs_text[] = "00";
 
-
 // Previous bluetooth connection status
 static bool prev_bt_status = false;
-
 
 #ifdef LANGUAGE_TESTING
   static int ct = 1;
@@ -122,7 +117,6 @@ static TextLayer * setup_text_layer( GRect rect, GTextAlignment align , GFont fo
   return newLayer;
 }
 
-
 /*
   Handle bluetooth events
 */
@@ -131,7 +125,6 @@ void handle_bluetooth( bool connected ) {
     gbitmap_destroy( bluetooth_image );
   }
 
-	
   if ( connected ) {
     bluetooth_image = gbitmap_create_with_resource( RESOURCE_ID_IMAGE_BLUETOOTH );
   } else {
@@ -145,7 +138,6 @@ void handle_bluetooth( bool connected ) {
 
   bitmap_layer_set_bitmap( bluetooth_layer, bluetooth_image );
 }
-
 
 /*
   Handle battery events
@@ -371,7 +363,7 @@ static void tuple_changed_callback( const uint32_t key, const Tuple* tuple_new, 
 	  persist_write_int( SECS_KEY, value );
       secs_status = value;
 	  
-	  	   if(secs_status) {
+	   if(secs_status) {
 			layer_set_hidden(text_layer_get_layer(text_secs_layer), false);
 	 		layer_set_hidden(text_layer_get_layer(text_ampm_layer), true);
 	    	tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
@@ -381,7 +373,6 @@ static void tuple_changed_callback( const uint32_t key, const Tuple* tuple_new, 
 	    	layer_set_hidden(text_layer_get_layer(text_ampm_layer), false);
 	    	tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
       }
-	  
       break;
   }
   // Refresh display
@@ -396,10 +387,6 @@ static void app_error_callback( DictionaryResult dict_error, AppMessageResult ap
 //  APP_LOG( APP_LOG_LEVEL_DEBUG, "app error %d", app_message_error );
 //  vibes_double_pulse();
 }
-
-
-
-
 
 /*
   Force update of time
@@ -463,7 +450,6 @@ void handle_init( void ) {
     secs_status = SECS_ON;
   }
 	
-	
   // Read watchface settings from persistent data or use default values
   current_status = persist_exists( SETTING_STATUS_KEY ) ? persist_read_int( SETTING_STATUS_KEY ) : STATUS_ON;
   weather_status = persist_exists( SETTING_WEATHERSTATUS_KEY ) ? persist_read_int( SETTING_WEATHERSTATUS_KEY ) : WEATHER_ON;
@@ -509,9 +495,7 @@ void handle_init( void ) {
   // Perform sync
   app_sync_set( &app, initial_values, ARRAY_LENGTH( initial_values ) );
 
-	
-		appStarted = true;
-
+  appStarted = true;
 	
   // Adjust GRect for Hours, Minutes and Blink to compensate for missing AM/PM indicator
   if ( clock_is_24h_style() ) {
@@ -547,7 +531,6 @@ void handle_init( void ) {
                                     , GTextAlignmentLeft
                                     , font_date );
   layer_add_child( window_layer, text_layer_get_layer( text_week_layer ) );
-
   
   // Setup weather info
   Layer *weather_holder = layer_create(GRect(0, 0, 144, 168 ));
@@ -586,7 +569,6 @@ void handle_init( void ) {
   update_time();
 }
 
-
 /*
   Destroy GBitmap and BitmapLayer
 */
@@ -597,7 +579,6 @@ void destroy_graphics( GBitmap *image, BitmapLayer *layer ) {
     gbitmap_destroy( image );
   }
 }
-
 
 /*
   dealloc
@@ -637,7 +618,6 @@ void handle_deinit( void ) {
   // Destroy window
   window_destroy( window );
 }
-
 
 /*
   Main process

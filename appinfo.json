@@ -14,7 +14,7 @@
     "capabilities": [
         "configurable"
     ],
-    "companyName": "Little Gem Software",
+    "companyName": "Little Gem Software / mereed",
     "longName": "trekv2",
     "projectType": "native",
     "resources": {
@@ -188,10 +188,11 @@
             }
         ]
     },
+    "sdkVersion": "2",
     "shortName": "trekv2",
     "uuid": "6a9e0d01-aea0-444f-aa20-3f03d7f65a1b",
     "versionCode": 2,
-    "versionLabel": "1.6",
+    "versionLabel": "1.9",
     "watchapp": {
         "watchface": true
     }
