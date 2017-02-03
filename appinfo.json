@@ -7,6 +7,7 @@
         "icon": 5,
         "invert": 3,
         "language": 1,
+        "startday_status": 10,
         "status": 0,
         "temperature": 4,
         "weatherstatus": 6
@@ -14,8 +15,8 @@
     "capabilities": [
         "configurable"
     ],
-    "companyName": "Little Gem Software / mereed",
-    "longName": "trekv2",
+    "companyName": "chops",
+    "longName": "TrekV2",
     "projectType": "native",
     "resources": {
         "media": [
@@ -136,22 +137,6 @@
                 "type": "png"
             },
             {
-                "file": "fonts/LCARS.ttf",
-                "name": "FONT_LCARS_20",
-                "type": "font"
-            },
-            {
-                "file": "fonts/LCARS.ttf",
-                "name": "FONT_LCARS_25",
-                "type": "font"
-            },
-            {
-                "characterRegex": "[0-9:. ]",
-                "file": "fonts/LCARS.ttf",
-                "name": "FONT_LCARS_68",
-                "type": "font"
-            },
-            {
                 "file": "images/no_bluetooth.png",
                 "name": "IMAGE_NO_BLUETOOTH",
                 "type": "png"
@@ -185,14 +170,30 @@
                 "file": "images/mylcarsbg6sdk2 copy.png",
                 "name": "IMAGE_BACKGROUND",
                 "type": "png"
+            },
+            {
+                "file": "fonts/LCARS.ttf",
+                "name": "FONT_LCARS_20",
+                "type": "font"
+            },
+            {
+                "file": "fonts/LCARS.ttf",
+                "name": "FONT_LCARS_25",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9:. ]",
+                "file": "fonts/LCARS.ttf",
+                "name": "FONT_LCARS_68",
+                "type": "font"
             }
         ]
     },
     "sdkVersion": "2",
-    "shortName": "trekv2",
+    "shortName": "TrekV2",
     "uuid": "6a9e0d01-aea0-444f-aa20-3f03d7f65a1b",
-    "versionCode": 2,
-    "versionLabel": "1.9",
+    "versionCode": 1,
+    "versionLabel": "2.1",
     "watchapp": {
         "watchface": true
     }

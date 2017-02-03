@@ -27,8 +27,9 @@ static enum secsKeys { SECS_OFF = 0, SECS_ON } secs_status;
 static enum bluetoothvibeKey { BLUETOOTHVIBE_OFF = 0, BLUETOOTHVIBE_ON } bluetoothvibe_status;
 static enum hourlyvibeKey { HOURLYVIBE_OFF = 0, HOURLYVIBE_ON } hourlyvibe_status;
 static enum formatKeys { FORMAT_WEEK = 0, FORMAT_DOTY, FORMAT_DDMMYY, FORMAT_MMDDYY, FORMAT_WXDX, FORMAT_INT } current_format;
-static enum languageKeys { LANG_EN = 0, LANG_NL, LANG_DE, LANG_FR, LANG_HR, LANG_ES, LANG_IT, LANG_NO, LANG_FI } current_language;
+static enum languageKeys { LANG_EN = 0, LANG_NL, LANG_DE, LANG_FR, LANG_HR, LANG_ES, LANG_IT, LANG_NO, LANG_SW, LANG_FI, LANG_DA, LANG_TU, LANG_CA, LANG_SL } current_language;
 static enum invertKeys { INVERT_OFF = 0, INVERT_ON } invert_format;
+static enum startDayKey { SUNDAY_ON = 0, MONDAY_ON } startday_status;
 
 // Setting keys
 enum settingKeys {
@@ -42,6 +43,7 @@ enum settingKeys {
   BLUETOOTHVIBE_KEY = 0x7,
   HOURLYVIBE_KEY = 0x8,
   SECS_KEY = 0x9,
+  STARTDAY_KEY = 0xA
 };
 
 BitmapLayer *icon_layer;
@@ -228,9 +230,22 @@ void handle_tick( struct tm *tick_time, TimeUnits units_changed ) {
    }
 	
   // Update text layer for current day
-  int today = tick_time->tm_wday - 1; if ( today < 0 ) { today = 6; }
-  layer_set_frame( inverter_layer_get_layer( currentDayLayer ), highlight_rect[current_language][today] );
+//  int today = tick_time->tm_wday - 1; if ( today < 0 ) { today = 6; }
+//  layer_set_frame( inverter_layer_get_layer( currentDayLayer ), highlight_rect[current_language][today] );
 
+  // Update text layer for current day
+	
+if (startday_status) {
+  int today = tick_time->tm_wday ; if ( today < 0 ) { today = 6; }
+//  layer_set_frame( effect_layer_get_layer(effect_layer2), highlight_rect2[current_language][today] );
+  layer_set_frame( inverter_layer_get_layer( currentDayLayer ), highlight_rect2[current_language][today] );
+
+	} else {
+  int today = tick_time->tm_wday - 1; if ( today < 0 ) { today = 6; }
+//  layer_set_frame( effect_layer_get_layer(effect_layer2), highlight_rect[current_language][today] );
+  layer_set_frame( inverter_layer_get_layer( currentDayLayer ), highlight_rect[current_language][today] );
+	}
+	
   #ifdef LANGUAGE_TESTING
     layer_set_frame( inverter_layer_get_layer( currentDayLayer ), hightlight_rect[current_language][ct] );
     if ( tick_time->tm_sec % speed == 0 ) { ct++; }
@@ -278,14 +293,15 @@ void handle_tick( struct tm *tick_time, TimeUnits units_changed ) {
   } 
   if ( weather_status == WEATHER_ON ) {
     update_status();
-  }
-	
+  }	
   if ( secs_status == SECS_ON ) {
     update_status();
-  }
-	
+  }	
   if ( invert_format == INVERT_ON ) {
     change_background(invert_format);
+  }
+  if ( startday_status == MONDAY_ON ) {
+    update_status();
   }
 }
 
@@ -312,7 +328,21 @@ static void tuple_changed_callback( const uint32_t key, const Tuple* tuple_new, 
     case SETTING_LANGUAGE_KEY:
       persist_write_int( SETTING_LANGUAGE_KEY, value );
       current_language = value;
-      text_layer_set_text( text_days_layer, day_lines[current_language] );
+	  layer_mark_dirty( text_layer_get_layer( text_days_layer));
+
+  //    text_layer_set_text( text_days_layer, day_lines[current_language] );
+	/*  
+	  	  if (startday_status) {
+		  	layer_mark_dirty( text_layer_get_layer( text_days_layer));
+  			text_layer_set_text( text_days_layer, day_lines2[current_language] );
+		 //   layer_mark_dirty( text_layer_get_layer( text_days_layer2));
+
+	  } else {
+		  	layer_mark_dirty( text_layer_get_layer( text_days_layer));
+			text_layer_set_text( text_days_layer, day_lines[current_language] );
+		   // layer_mark_dirty( text_layer_get_layer( text_days_layer));
+		  }
+		  */
       break;
 
     case SETTING_FORMAT_KEY:
@@ -352,6 +382,23 @@ static void tuple_changed_callback( const uint32_t key, const Tuple* tuple_new, 
     case BLUETOOTHVIBE_KEY:
 	  persist_write_int( BLUETOOTHVIBE_KEY, value );
       bluetoothvibe_status = value;
+      break;      
+
+    case STARTDAY_KEY:
+	  persist_write_int( STARTDAY_KEY, value );
+      startday_status = value;
+
+	  	  if (startday_status) {
+		  	layer_mark_dirty( text_layer_get_layer( text_days_layer));
+  			text_layer_set_text( text_days_layer, day_lines2[current_language] );
+		 //   layer_mark_dirty( text_layer_get_layer( text_days_layer2));
+
+	  } else {
+		  	layer_mark_dirty( text_layer_get_layer( text_days_layer));
+			text_layer_set_text( text_days_layer, day_lines[current_language] );
+		   // layer_mark_dirty( text_layer_get_layer( text_days_layer));
+
+	  }
       break;      
 	  
 	case HOURLYVIBE_KEY:
@@ -449,6 +496,11 @@ void handle_init( void ) {
   } else {
     secs_status = SECS_ON;
   }
+  if ( persist_exists( STARTDAY_KEY ) ) {
+    startday_status = persist_read_int( STARTDAY_KEY );
+  } else {
+    startday_status = MONDAY_ON;
+  }
 	
   // Read watchface settings from persistent data or use default values
   current_status = persist_exists( SETTING_STATUS_KEY ) ? persist_read_int( SETTING_STATUS_KEY ) : STATUS_ON;
@@ -459,6 +511,7 @@ void handle_init( void ) {
   bluetoothvibe_status = persist_exists( BLUETOOTHVIBE_KEY ) ? persist_read_int( BLUETOOTHVIBE_KEY ) : BLUETOOTHVIBE_ON;
   hourlyvibe_status = persist_exists( HOURLYVIBE_KEY ) ? persist_read_int( HOURLYVIBE_KEY ) : HOURLYVIBE_ON;
   secs_status = persist_exists( SECS_KEY ) ? persist_read_int( SECS_KEY ) : SECS_ON;
+  startday_status = persist_exists( STARTDAY_KEY ) ? persist_read_int( STARTDAY_KEY ) : MONDAY_ON;
 
   // Background image
   background_image = gbitmap_create_with_resource( RESOURCE_ID_IMAGE_BACKGROUND );
@@ -477,6 +530,7 @@ void handle_init( void ) {
                             , TupletInteger( SECS_KEY, secs_status )
 							, TupletInteger( SETTING_ICON_KEY, (uint8_t) 14)
                             , TupletCString( SETTING_TEMPERATURE_KEY, "")
+                            , TupletInteger( STARTDAY_KEY, startday_status )
                             };
 
   // Open AppMessage to transfers
@@ -516,9 +570,27 @@ void handle_init( void ) {
   layer_add_child( window_layer, text_layer_get_layer( text_ampm_layer ) );
 
   // Setup days line layer
-  text_days_layer = setup_text_layer( DAYS_RECT, GTextAlignmentLeft, font_days );
+//  text_days_layer = setup_text_layer( DAYS_RECT, GTextAlignmentLeft, font_days );
+//  layer_add_child( window_layer, text_layer_get_layer( text_days_layer ) );
+//  text_layer_set_text( text_days_layer, day_lines[current_language] );
+
+	
+	
+	
+  // Setup days line layer
+
+if (startday_status) {	
+  text_days_layer = setup_text_layer( DAYS_RECT, GTextAlignmentLeft, font_days );	
+  text_layer_set_text( text_days_layer, day_lines2[current_language] );
   layer_add_child( window_layer, text_layer_get_layer( text_days_layer ) );
+
+} else {
+  text_days_layer = setup_text_layer( DAYS_RECT, GTextAlignmentLeft, font_days );	
   text_layer_set_text( text_days_layer, day_lines[current_language] );
+  layer_add_child( window_layer, text_layer_get_layer( text_days_layer ) );
+
+}
+
 
   // Setup date layer
   text_date_layer = setup_text_layer( ( current_status == STATUS_ON ) ? DATE_RECT : OFF_DATE_RECT

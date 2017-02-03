@@ -78,13 +78,13 @@ if (options === null) options = { "use_gps" : "true",
 									"bluetoothvibe" : "false",
 									"hourlyvibe" : "false",
 									"ampmsecs" : "false",
+									"startday_status" : "false",
                                     "invert" : "false" };
 
 function getWeatherFromLatLong(latitude, longitude) {
   var response;
-  var woeid = -1;
-  var query = encodeURI("select woeid from geo.placefinder where text=\""+latitude+","+longitude + "\" and gflags=\"R\"");
-  var url = "http://query.yahooapis.com/v1/public/yql?q=" + query + "&format=json";
+  var location_name = "";
+  var url = "http://maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude;
   var req = new XMLHttpRequest();
   req.open('GET', url, true);
   req.onload = function(e) {
@@ -92,11 +92,11 @@ function getWeatherFromLatLong(latitude, longitude) {
       if (req.status == 200) {
         response = JSON.parse(req.responseText);
         if (response) {
-          woeid = response.query.results.Result.woeid;
-          getWeatherFromWoeid(woeid);
+          location_name = response.results[0].formatted_address;
+          getWeatherFromLocation(location_name);
         }
       } else {
-        console.log("Error");
+        console.log("Error LatLong");
       }
     }
   };
@@ -121,7 +121,7 @@ function getWeatherFromLocation(location_name) {
           getWeatherFromWoeid(woeid);
         }
       } else {
-        console.log("Error");
+        console.log("Error Location");
       }
     }
   };
@@ -157,8 +157,10 @@ function getWeatherFromWoeid(woeid) {
 			"bluetoothvibe" : (options["bluetoothvibe"] == "true" ? 1 : 0 ),
 			"hourlyvibe" : (options["hourlyvibe"] == "true" ? 1 : 0 ),
 			"ampmsecs" : (options["ampmsecs"] == "true" ? 1 : 0 ),
+			"startday_status" : (options["startday_status"] == "true" ? 1 : 0 ),
 			"format" : options["format"],
 			"language" : options["language"],
+
           });
         }
       } else {
@@ -195,7 +197,7 @@ function locationError(err) {
 }
 
 Pebble.addEventListener('showConfiguration', function(e) {
-	var uri = 'http://www.themapman.com/pebblewatch/trekv2-config-w3secs.html?' +
+	var uri = 'http://www.themapman.com/pebblewatch/trekv2-191.html?' +
     'use_gps=' + encodeURIComponent(options['use_gps']) +
     '&location=' + encodeURIComponent(options['location']) +
     '&units=' + encodeURIComponent(options['units']) +
@@ -204,6 +206,7 @@ Pebble.addEventListener('showConfiguration', function(e) {
     '&bluetoothvibe=' + encodeURIComponent(options['bluetoothvibe']) +
     '&hourlyvibe=' + encodeURIComponent(options['hourlyvibe']) +
     '&ampmsecs=' + encodeURIComponent(options['ampmsecs']) +
+    '&startday_status=' + encodeURIComponent(options['startday_status']) +
     '&format=' + encodeURIComponent(options['format']) +
     '&language=' + encodeURIComponent(options['language']) +
     '&invert=' + encodeURIComponent(options['invert']);
